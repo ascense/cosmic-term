@@ -655,6 +655,7 @@ where
             Event::Keyboard(KeyEvent::KeyPressed {
                 key: Key::Named(named),
                 modifiers,
+                text,
                 ..
             }) if state.is_focused => {
                 for key_bind in self.key_binds.keys() {
@@ -778,7 +779,8 @@ where
                         status = Status::Captured;
                     }
                     Named::Space => {
-                        terminal.input_scroll(format!("{}{}", alt_prefix, " ").into_bytes());
+                        let character = text.and_then(|c| c.chars().next()).unwrap_or_default();
+                        terminal.input_scroll(format!("{}{}", alt_prefix, character).into_bytes());
                         status = Status::Captured;
                     }
                     Named::Tab => {
@@ -800,6 +802,7 @@ where
             }) if state.is_focused => {
                 for key_bind in self.key_binds.keys() {
                     if key_bind.matches(modifiers, &key) {
+                        println!("captured");
                         return Status::Captured;
                     }
                 }
